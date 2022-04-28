@@ -1,7 +1,7 @@
 import socket
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as servidor:
-    servidor.bind(('localhost', 22))
+    servidor.bind(('0.0.0.0', 2202))
     servidor.listen()
 
     print('Esperando conexões...')

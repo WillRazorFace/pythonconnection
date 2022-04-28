@@ -1,7 +1,10 @@
 import socket
+from decouple import config
+
+DNS = config('DNS')
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conexao:
-    conexao.connect(('localhost', 22))
+    conexao.connect((DNS, 2202))
 
     print('Conectado\n')
 
