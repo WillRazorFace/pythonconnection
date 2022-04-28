@@ -9,13 +9,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as servidor:
     cliente, endereco = servidor.accept()
 
     with cliente:
-        print(f'\nConectado com {endereco[0]} na porta {endereco[1]}')
+        print(f'\nConectado com {endereco[0]} na porta {endereco[1]}\n')
 
         while True:
-            dados = cliente.recv(1024)
+            try:
+                command = input('>>> ')
 
-            print(f'\n({endereco[0]}:{endereco[1]}) - {dados.decode()}\n')
+                cliente.sendall(command.encode())
 
-            dados = input('>>> ')
+                saida = cliente.recv(1024).decode()
 
-            cliente.sendall(dados.encode())
+                if saida == 'continue':
+                    continue
+
+                print(f'\n{saida}\n')
+            except KeyboardInterrupt:
+                cliente.close()
+                break
