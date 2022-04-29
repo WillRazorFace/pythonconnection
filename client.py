@@ -11,11 +11,14 @@ def download_file(socket: socket.socket) -> None:
     data = socket.recv(1024).decode()
     filename, filesize = data.split(';')
 
+    socket.sendall('0'.encode())
+
     with open(filename, 'wb') as f:
         dados = socket.recv(int(filesize))
 
         f.write(dados)
-        return
+
+    socket.sendall('0'.encode())
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conexao:

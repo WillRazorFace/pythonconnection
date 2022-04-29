@@ -9,11 +9,15 @@ def send_file(socket: socket.socket, path: str) -> None:
     filesize = os.path.getsize(path)
 
     socket.sendall(f'{filename};{filesize}'.encode())
+    socket.recv(1).decode()
 
     with open(filename, 'rb') as file:
         data = file.read(filesize)
         socket.sendall(data)
-        return
+
+    result_code = socket.recv(1).decode()
+    if result_code == '0':
+        print('[+] File sent [+]')
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as servidor:
